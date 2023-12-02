@@ -119,6 +119,11 @@ security parameter.
 
 ## Snowball, BFT
 
+Snowflake’s notion of state is ephemeral: the counter gets reset with every color flip. Snowball augments Snowflake with confidence counters that capture the number of queries that have yielded a threshold result for their corresponding color. A node decides if it gets β consecutive chits for a color. However, it only changes preference based on the total
+accrued confidence. The differences between Snowflake and
+Snowball are as follows:
+1. Upon every successful query, the node increments its confidence counter for that color.
+2. A node switches colors when the confidence in its current color becomes lower than the confidence value of the new color.
 
 ```
 1:  procedure snowballLoop(u, col0 ∈ {R, B, ⊥})
