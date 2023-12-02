@@ -9,6 +9,7 @@ class Node:
         self.state = initial_state
         self.counter = 0 
         self.neighbors = []
+        self.accepted = False
 
     def query(self, querying_color=None):
         if self.state == '⊥' and querying_color:
@@ -23,6 +24,7 @@ class Node:
     
     def accept(self, state):
         self.state = state
+        self.accepted = True
 
 
 class SnowflakeAlgorithm:
@@ -31,6 +33,7 @@ class SnowflakeAlgorithm:
         self.k = k
         self.alpha = alpha
         self.beta = beta
+        self.consensus_reached = False 
         for node in self.nodes:
             node.neighbors = self.nodes
 
@@ -51,27 +54,34 @@ class SnowflakeAlgorithm:
             for state, count in state_count.items():
                 if count >= self.alpha * self.k:
                     maj = True
-                    if state != node.state:
-                        node.update_state(state)
-                        node.counter = 1
-                        changes = True
-                    else:
+                    if state == node.state:
                         node.counter += 1
+                    else:
+                        node.state = state  
+                        node.counter = 1
                     if node.counter >= self.beta:
                         node.accept(state)
+                    changes = True  
+                    break  
             if not maj:
                 node.counter = 0
         return changes
 
     def run(self):
         rounds_taken = 0
-        while True:
+
+        while not self.consensus_reached:
             rounds_taken += 1
-            changes = self.run_snowflake_round()
-            if not changes:  
-                break
-        
-        return rounds_taken, self.nodes[0].state
+            self.run_snowflake_round()
+
+            accepted_states = [node.state for node in self.nodes if getattr(node, 'accepted', False)]
+            for state in set(accepted_states):
+                if accepted_states.count(state) > len(self.nodes) * 2 / 3:
+                    self.consensus_reached = True
+                    return rounds_taken, self.nodes[0].state
+
+    
+
 
 
 def generate_initial_states(num_R, num_B, num_neutral):
@@ -82,7 +92,7 @@ def generate_initial_states(num_R, num_B, num_neutral):
 n = 600
 k = 10
 alpha = 0.8
-beta = 10
+beta = 20
 initial_states = generate_initial_states(n//3,n//3,n//3)
 slush = SnowflakeAlgorithm(k, alpha, beta, initial_states)
 rounds_taken, final_state = slush.run()

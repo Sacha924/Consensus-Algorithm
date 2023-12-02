@@ -86,6 +86,49 @@ NB : As you can see in my implementation, instead of waiting for m rounds I just
 16:             if ++cnt > β then accept(col)
 ```
 
+### __Major differences in my implementation with Slush__
+
+
+**Node Class:**
+
+Counter Variable: In the Snowflake algorithm, the counter tracks the number of consecutive rounds a node sees the same majority color. This is a crucial element in determining when a node should accept a color.
+Accepted Flag: The accepted boolean flag indicates whether a node has finalized its state (color) based on the Snowflake algorithm's criteria. Once a node has accepted a color, it no longer changes its state.
+
+
+**SnowflakeAlgorithm Class:**
+
+Beta Parameter: The beta parameter is specific to the Snowflake algorithm and represents the number of consecutive rounds a color must be seen as a majority before a node can accept it. This parameter is central to ensuring that the consensus is stable and not easily swayed by transient changes or Byzantine behaviors.
+Run Method:
+The run method in the Snowflake algorithm includes logic to check if consensus has been reached. This is done by checking the accepted flag of each node and ensuring that all nodes agree on the same color.
+The method of determining consensus (checking all nodes have accepted the same color) is specific to Snowflake and is not present in the Slush implementation.
+
+**Global Variable (consensus_reached):**
+
+In my implementation, the consensus_reached variable is used as a flag to indicate whether the algorithm should stop running. This is a design choice to manage the termination condition of the algorithm's loop.
+
+**Overall Algorithm Logic:**
+
+The fundamental difference between Slush and Snowflake lies in the convergence criteria. While Slush may converge when a majority color is simply observed, Snowflake requires this majority to be consistent over several consecutive rounds, as dictated by the beta parameter.
+
+NB : In the context of Byzantine fault tolerance, particularly for protocols like Snowflake (and more broadly in the Avalanche family of consensus algorithms), the goal is typically to achieve consensus despite some fraction of nodes being Byzantine. This fraction is often bounded by ⌊N-1/3⌋Byzantine nodes in a network of N nodes, meaning that the system should still reach consensus as long as no more than a third of the nodes are Byzantine. This is why my run SnowFlake function looks like this :
+
+```py
+    def run(self):
+        rounds_taken = 0
+
+        while not self.consensus_reached:
+            rounds_taken += 1
+            self.run_snowflake_round()
+
+            accepted_states = [node.state for node in self.nodes if getattr(node, 'accepted', False)]
+            for state in set(accepted_states):
+                if accepted_states.count(state) > len(self.nodes) * 2 / 3:
+                    self.consensus_reached = True
+                    return rounds_taken, self.nodes[0].state
+```
+
+## Snowflake
+
 Snowflake augments Slush with a single counter that captures
 the strength of a node’s conviction in its current color. This
 per-node counter stores how many consecutive samples of the
