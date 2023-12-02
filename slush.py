@@ -1,5 +1,7 @@
 import random
 
+from plot_population import plot
+
 
 class Node:
     def __init__(self, identifier, initial_state):
@@ -45,14 +47,16 @@ class SlushAlgorithm:
 
     def run(self):
         rounds_taken = 0
+        rounds_result = [(0,initial_states.count('B')/len(initial_states))]  
         while True:
             rounds_taken+=1
             states_before = [node.state for node in self.nodes]
             self.run_slush_round()
             states_after = [node.state for node in self.nodes]
+            rounds_result.append((rounds_taken, states_after.count("B")/len(initial_states))) 
             if states_before == states_after:
                 break
-        return rounds_taken, states_after[0]
+        return rounds_taken, states_after[0], rounds_result
 
 
 def generate_initial_states(num_R, num_B, num_neutral):
@@ -60,17 +64,19 @@ def generate_initial_states(num_R, num_B, num_neutral):
     random.shuffle(initial_states)
     return initial_states
 
-
+n = 2000
 k = 10
-alpha = 0.8
-initial_states = generate_initial_states(500,500,50)
+alpha = 0.9
+initial_states = generate_initial_states(n//2,n//2,0)
 slush = SlushAlgorithm(k, alpha, initial_states)
-rounds_taken, final_state = slush.run()
+rounds_taken, final_state, rounds_result = slush.run()
 
 print("all nodes become ",final_state, " after ", rounds_taken, " rounds")
 
+plot(rounds_result, [0.5, 0.5], "Slush. n={0}; k={1}; alpha={2};".format(n, k, alpha), "/slush.gif")
 
-# with at the beginning 2200 R, 2200B and 400 ⊥, mean on 2000 try 
+
+# with at the beginning 2200 R, 2200B and 400 ⊥, mean on 2000 try, and k = 10 et alpha = 0.8
 # R probability of winning :  51.5 %
 # B probability of winning :  48.5 %
 # Average number of rounds :  11.258
