@@ -60,25 +60,17 @@ def generate_initial_states(num_R, num_B, num_neutral):
     random.shuffle(initial_states)
     return initial_states
 
+
 k = 10
 alpha = 0.8
+initial_states = generate_initial_states(500,500,50)
+slush = SlushAlgorithm(k, alpha, initial_states)
+rounds_taken, final_state = slush.run()
 
-count_R = 0
-count_B = 0
-count_Rounds = 0
+print("all nodes become ",final_state, " after ", rounds_taken, " rounds")
 
-for i in range(2000):
-    initial_states = generate_initial_states(2200,2200,400)
-    slush = SlushAlgorithm(k, alpha, initial_states)
-    rounds_taken, final_state = slush.run()
 
-    if final_state == "R":
-        count_R += 1
-    else:
-        count_B += 1
-    count_Rounds += rounds_taken
-    # print("all nodes become ",final_state, " after ", rounds_taken, " rounds")
-
-print("R probability of winning : ", (count_R/2000)*100, "%")
-print("B probability of winning : ", (count_B/2000)*100, "%")
-print("Average number of rounds : ", (count_Rounds/2000))
+# with at the beginning 2200 R, 2200B and 400 ⊥, mean on 2000 try 
+# R probability of winning :  51.5 %
+# B probability of winning :  48.5 %
+# Average number of rounds :  11.258
