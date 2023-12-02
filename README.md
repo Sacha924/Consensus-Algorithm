@@ -64,28 +64,6 @@ NB : As you can see in my implementation, instead of waiting for m rounds I just
 ```
 
 
-## Snowball, BFT
-
-
-```
-1:  procedure snowballLoop(u, col0 ∈ {R, B, ⊥})
-2:    col := col0, lastcol := col0, cnt := 0
-3:    d[R] := 0, d[B] := 0
-4:    while undecided do
-5:      if col = ⊥ then continue
-6:      K := sample(N \u, k)
-7:      P := [query(v, col) for v ∈ K]
-8:      for col' ∈ {R, B} do
-9:        if P.count(col') ≥ α · k then
-10:         d[col']++
-11:         if d[col'] > d[col] then
-12:           col := col'
-13:           if col' != lastcol then
-14:             lastcol := col', cnt := 0
-15:           else
-16:             if ++cnt > β then accept(col)
-```
-
 ### __Major differences in my implementation with Slush__
 
 
@@ -135,3 +113,28 @@ per-node counter stores how many consecutive samples of the
 network by that node have all yielded the same color. A node
 accepts the current color when its counter reaches β, another
 security parameter.
+
+
+
+
+## Snowball, BFT
+
+
+```
+1:  procedure snowballLoop(u, col0 ∈ {R, B, ⊥})
+2:    col := col0, lastcol := col0, cnt := 0
+3:    d[R] := 0, d[B] := 0
+4:    while undecided do
+5:      if col = ⊥ then continue
+6:      K := sample(N \u, k)
+7:      P := [query(v, col) for v ∈ K]
+8:      for col' ∈ {R, B} do
+9:        if P.count(col') ≥ α · k then
+10:         d[col']++
+11:         if d[col'] > d[col] then
+12:           col := col'
+13:           if col' != lastcol then
+14:             lastcol := col', cnt := 0
+15:           else
+16:             if ++cnt > β then accept(col)
+```
