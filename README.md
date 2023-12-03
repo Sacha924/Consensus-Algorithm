@@ -42,7 +42,7 @@ The Slush algorithm is a consensus protocol designed to achieve agreement across
 
 NB : As you can see in my implementation, instead of waiting for m rounds I just decided that the algorithm stop when all nodes have the same color
 
-## Snowflake
+## Snowflake, BFT
 
 
 ```
@@ -105,7 +105,7 @@ NB : In the context of Byzantine fault tolerance, particularly for protocols lik
                     return rounds_taken, self.nodes[0].state
 ```
 
-## Snowflake
+### Slush to Snowflake
 
 Snowflake augments Slush with a single counter that captures
 the strength of a node’s conviction in its current color. This
@@ -117,7 +117,7 @@ security parameter.
 
 
 
-## Snowball, BFT
+## Snowball
 
 Snowflake’s notion of state is ephemeral: the counter gets reset with every color flip. Snowball augments Snowflake with confidence counters that capture the number of queries that have yielded a threshold result for their corresponding color. A node decides if it gets β consecutive chits for a color. However, it only changes preference based on the total
 accrued confidence. The differences between Snowflake and
